@@ -29,8 +29,8 @@ func main() {
 		return
 	}
 
-	element, ok := elementOf(students, arg[1])
-	if !ok {
+	element := elementOf(students, arg[1])
+	if element == nil {
 		fmt.Println("Data siswa tidak ditemukan")
 	} else {
 		fmt.Println(fmt.Sprintf("ID: %d", element.ID))
@@ -42,18 +42,16 @@ func main() {
 
 }
 
-// elementOf return Student data and bool given an argument supplied by user
-func elementOf(slc []Student, arg string) (Student, bool) {
-	var element Student
-	found := false
+// elementOf return Student data according to an argument supplied by user
+func elementOf(slc []Student, arg string) *Student {
+	var element *Student
 	for _, s := range slc {
 		if containsArg(arg, s.ID, s.Name) {
-			element = s
-			found = true
+			element = &s
 			break
 		}
 	}
-	return element, found
+	return element
 }
 
 // containsArg checks if id or name of a student is matched with the argument
