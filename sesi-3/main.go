@@ -18,9 +18,9 @@ func main() {
 
 	arg := os.Args
 	students := []Student{
-		{ID: 0, Name: "Rahman", Address: "Jalan Nanas", Job: "X", ReasonToEnroll: "Pengen aja"},
-		{ID: 1, Name: "Aziz", Address: "Jalan Rambutan", Job: "Y", ReasonToEnroll: "Bingung"},
-		{ID: 2, Name: "Firmansyah", Address: "Jalan Durian", Job: "Z", ReasonToEnroll: "Gatau"},
+		{ID: 0, Name: "Rahman", Address: "Jalan yang benar", Job: "X", ReasonToEnroll: "Pengen aja"},
+		{ID: 1, Name: "Aziz", Address: "Jalan sesama", Job: "Y", ReasonToEnroll: "Bingung"},
+		{ID: 2, Name: "Firmansyah", Address: "Jalan berliku", Job: "Z", ReasonToEnroll: "Gatau"},
 	}
 
 	if len(arg) <= 1 {
