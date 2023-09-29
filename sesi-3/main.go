@@ -14,11 +14,6 @@ type Student struct {
 	ReasonToEnroll string
 }
 
-type ChekcArg struct {
-	ID   int
-	Name string
-}
-
 func main() {
 
 	arg := os.Args
@@ -52,7 +47,6 @@ func elementOf(slc []Student, arg string) (Student, bool) {
 	var element Student
 	found := false
 	for _, s := range slc {
-		// isTrue := containsArg(arg, s.ID, s.Name)
 		if containsArg(arg, s.ID, s.Name) {
 			element = s
 			found = true
