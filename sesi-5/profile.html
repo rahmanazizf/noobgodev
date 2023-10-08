@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Successful Login!</title>
+</head>
+<body>
+    <nav>Profile</nav>
+    <div>
+        <p>Email: {{ .Email }}</p>
+        <p>Address: {{ .Address }}</p>
+        <p>Job: {{ .Job }}</p>
+        <p>Reason to be happy: {{ .ReasonToBeHappy }}</p>
+    </div>
+    <div>
+        <a href="http://localhost:8182/login">
+            <button>Logout</button>
+          </a>
+          
+    </div>
+</body>
+</html>
