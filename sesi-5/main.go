@@ -1,18 +1,26 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
+	"html/template"
 	"log"
 	"net/http"
-	"text/template"
 )
 
 var PORT = ":8182"
 
 type User struct {
-	Email    string
-	Password string
+	Email           string
+	Password        string
+	Address         string
+	Job             string
+	ReasonToBeHappy string
+}
+
+var users = []User{
+	{Email: "squarepants@mail.com", Password: "sbob***", Address: "Pinaple house, Bikini Bottom", Job: "Chef", ReasonToBeHappy: "Patrick"},
+	{Email: "star@mail.com", Password: "uhmmm", Address: "Under the rock, Bikini Bottom", Job: "Jobless", ReasonToBeHappy: "Lying under the rock"},
+	{Email: "tentacles@mail.com", Password: "iloveme", Address: "Squid Gallery, Bikini Bottom", Job: "Artist", ReasonToBeHappy: "Nothing"},
 }
 
 func main() {
@@ -31,7 +39,8 @@ func greet(w http.ResponseWriter, r *http.Request) {
 
 func login(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html")
-	if r.Method == http.MethodGet {
+	switch r.Method {
+	case http.MethodGet:
 		tpl, err := template.ParseFiles("./template.html")
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -45,19 +54,41 @@ func login(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		return
-	} else {
+	case http.MethodPost:
 		email, password := r.FormValue("email"), r.FormValue("password")
-		user := User{Email: email, Password: password}
-		if email == "rahmanazizf@mail.com" && password == "razizf" {
-			err := json.NewEncoder(w).Encode(user)
+		var user User
+		for _, u := range users {
+			if u.Email == email && u.Password == password {
+				user = u
+				break
+			}
+		}
+		if user.Email == "" {
+			falselogin, err := template.ParseFiles("./falseuser.html")
 			if err != nil {
+				log.Println("Error parsing falseuser.html:", err)
 				http.Error(w, err.Error(), http.StatusInternalServerError)
-				log.Println("Error encoding JSON:", err)
+				return
+			}
+			err = falselogin.Execute(w, nil)
+			if err != nil {
+				log.Println("Error executing falseuser.html:", err)
+				http.Error(w, err.Error(), http.StatusInternalServerError)
 				return
 			}
 			return
 		}
+		profile, err := template.ParseFiles("./profile.html")
+		if err != nil {
+			log.Println("Error parsing profile.html:", err)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		err = profile.Execute(w, user)
+		if err != nil {
+			log.Println("Error executing profile.html:", err)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
 	}
-
-	http.Error(w, "Invalid email or password", http.StatusUnauthorized)
 }
