@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 )
 
@@ -14,6 +15,7 @@ func CheckError(err error) {
 func CreateTable(db *sql.DB) {
 	// tabel products
 	createProducts := `
+	DROP TABLE IF EXISTS variants; -- products dirujuk oleh variants jadi harus didrop dulu
 	DROP TABLE IF EXISTS products;
 	CREATE TABLE products (
 		id serial PRIMARY KEY,
@@ -68,4 +70,11 @@ func CreateTable(db *sql.DB) {
 	_, err = db.Query(createVariants)
 	CheckError(err)
 	log.Println("Successfully created products and variants table!")
+}
+
+func CreateProduct(db *sql.DB, name string) {
+	createProduct := `INSERT INTO products (name) VALUES ($1)`
+	_, err := db.Query(createProduct, name)
+	CheckError(err)
+	fmt.Println(fmt.Sprintf("Inserted product: %s", name))
 }
