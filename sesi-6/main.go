@@ -91,5 +91,5 @@ func CreateTable(db *sql.DB) {
 	`
 	_, err = db.Query(createVariants)
 	CheckError(err)
-	log.Println("Successfully created database!")
+	log.Println("Successfully created products and variants table!")
 }
