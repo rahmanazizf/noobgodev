@@ -48,7 +48,7 @@ func CreateTable(db *sql.DB) {
 		id serial PRIMARY KEY,
 		variant_name varchar(20) NOT NULL UNIQUE,
 		quantity int CHECK(quantity >= 0) NOT NULL,
-		product_id int REFERENCES products(id) NOT NULL,
+		product_id int REFERENCES products(id) ON DELETE CASCADE,
 		created_at timestamp DEFAULT current_timestamp,
 		updated_at timestamp
 	);
@@ -72,11 +72,13 @@ func CreateTable(db *sql.DB) {
 	log.Println("Successfully created products and variants table!")
 }
 
-func CreateProduct(db *sql.DB, name string) {
-	createProduct := `INSERT INTO products (name) VALUES ($1)`
-	_, err := db.Query(createProduct, name)
+func CreateProduct(db *sql.DB, name string) int {
+	createProduct := `INSERT INTO products (name) VALUES ($1) RETURNING id;`
+	var productID int
+	err := db.QueryRow(createProduct, name).Scan(&productID)
 	CheckError(err)
 	fmt.Println(fmt.Sprintf("Inserted product: %s", name))
+	return productID
 }
 
 func UpdateProduct(db *sql.DB, id int, newName string) {
@@ -85,7 +87,7 @@ func UpdateProduct(db *sql.DB, id int, newName string) {
 	SET name = $1
 	WHERE id = $2;
 	`
-	_, err := db.Query(updateProduct, id, newName)
+	_, err := db.Query(updateProduct, newName, id)
 	CheckError(err)
 	fmt.Println(fmt.Sprintf("Updated product with id %d: %s", id, newName))
 }
@@ -120,4 +122,23 @@ func CreateVariant(db *sql.DB, variantName string, productId int) {
 	_, err := db.Query(createVariant, variantName, productId)
 	CheckError(err)
 	fmt.Println(fmt.Sprintf("Created variant with"))
+}
+
+func GetProductWithVariant(db *sql.DB) {
+
+}
+
+func DeleteVariantById(db *sql.DB, id int) {
+	deleteVariant := `
+	DELETE
+	FROM variants
+	WHERE id = $1
+	`
+	_, err := db.Query(deleteVariant, id)
+	CheckError(err)
+	fmt.Println(fmt.Sprintf("Deleted variant with id %d", id))
+}
+
+func DeleteProductById(db *sql.DB) {
+
 }

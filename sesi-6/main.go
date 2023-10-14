@@ -35,5 +35,8 @@ func main() {
 	cmd.CreateTable(db)
 
 	// create product
-	cmd.CreateProduct(db, "Indomie")
+	productID := cmd.CreateProduct(db, "Indomie")
+
+	// update product
+	cmd.UpdateProduct(db, productID, "Indomie Goreng")
 }
