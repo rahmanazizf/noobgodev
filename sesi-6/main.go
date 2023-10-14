@@ -5,19 +5,24 @@ import (
 	"fmt"
 	"godev/sesi-6/cmd"
 	"log"
+	"os"
+	"strconv"
 
+	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 )
 
-const (
-	host     = "localhost"
-	port     = 5432
-	user     = "postgres"
-	password = "Fisikaasyik123"
-	dbname   = "godev"
-)
-
 func main() {
+	if err := godotenv.Load(); err != nil {
+		log.Fatalf("Error loading .env file: %v", err)
+	}
+	var (
+		host     = os.Getenv("HOST")
+		port, _  = strconv.Atoi(os.Getenv("PORT"))
+		user     = os.Getenv("USER")
+		password = os.Getenv("PASSWORD")
+		dbname   = os.Getenv("DBNAME")
+	)
 	psqlConn := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
 	db, err := sql.Open("postgres", psqlConn)
 	cmd.CheckError(err)
@@ -28,4 +33,7 @@ func main() {
 
 	// creating table
 	cmd.CreateTable(db)
+
+	// create product
+	cmd.CreateProduct(db, "Indomie")
 }
