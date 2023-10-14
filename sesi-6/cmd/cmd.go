@@ -3,6 +3,7 @@ package cmd
 import (
 	"database/sql"
 	"fmt"
+	"godev/sesi-6/models"
 	"log"
 )
 
@@ -99,8 +100,18 @@ func GetProductById(db *sql.DB, id int) {
 	WHERE id = $1;
 	`
 	row, err := db.Query(getProduct, id)
+
+	var product models.Products
+
 	CheckError(err)
-	fmt.Println(row)
+	defer row.Close()
+	for row.Next() {
+		err = row.Scan(&product.ProductID, &product.Name, &product.CreatedAt, &product.UpdatedAt)
+		if err != nil {
+			panic(err)
+		}
+	}
+	fmt.Println(product.ProductID, product.Name, product.CreatedAt, product.UpdatedAt)
 }
 
 func UpdateVariantById(db *sql.DB, id int, variantName string, productId int) {
