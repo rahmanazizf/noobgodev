@@ -15,3 +15,9 @@ type Variants struct {
 	CreatedAt   interface{}
 	UpdatedAt   interface{}
 }
+
+type ProductWithVariants struct {
+	ProductID   int
+	ProductName string
+	Variants    []Variants
+}
