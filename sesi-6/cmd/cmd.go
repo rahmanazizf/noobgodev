@@ -137,8 +137,43 @@ func CreateVariant(db *sql.DB, variantName string, productId int, quantity int) 
 	return variant.VariantID
 }
 
-func GetProductWithVariant(db *sql.DB) {
+func GetProductWithVariant(db *sql.DB, productID int) {
+	getProduct := `
+	SELECT id, name FROM products WHERE id = $1
+	`
+	getVariants := `
+	SELECT id, variant_name FROM variants WHERE product_id = $1
+	`
 
+	var productWithVariants models.ProductWithVariants
+	err := db.QueryRow(getProduct, productID).Scan(&productWithVariants.ProductID, &productWithVariants.ProductName)
+	if err != nil {
+		panic(err)
+	}
+	rows, err := db.Query(getVariants, productID)
+	if err != nil {
+		panic(err)
+	}
+	defer rows.Close()
+	var variants []models.Variants
+	for rows.Next() {
+		var variant models.Variants
+		err := rows.Scan(&variant.VariantID, &variant.VariantName)
+		if err != nil {
+			panic(err)
+		}
+		variants = append(variants, variant)
+	}
+
+	productWithVariants.Variants = variants
+	fmt.Println("====Get Product with Variants====")
+	fmt.Println("Product: ")
+	fmt.Println(productWithVariants.ProductID, productWithVariants.ProductName)
+	fmt.Println("Variants:")
+	for i, variant := range productWithVariants.Variants {
+		fmt.Println(fmt.Sprintf("%d. Variant ID: %d; Variant Name: %s; Quantity: %d", i+1, variant.VariantID, variant.VariantName, variant.Qty))
+	}
+	fmt.Println("=================================")
 }
 
 func DeleteVariantById(db *sql.DB, id int) {
@@ -152,6 +187,6 @@ func DeleteVariantById(db *sql.DB, id int) {
 	fmt.Println(fmt.Sprintf("Deleted variant with id %d", id))
 }
 
-func DeleteProductById(db *sql.DB) {
+func DeleteProductById(db *sql.DB, variantID int) {
 
 }
