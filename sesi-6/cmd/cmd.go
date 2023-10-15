@@ -142,7 +142,7 @@ func GetProductWithVariant(db *sql.DB, productID int) {
 	SELECT id, name FROM products WHERE id = $1
 	`
 	getVariants := `
-	SELECT id, variant_name FROM variants WHERE product_id = $1
+	SELECT id, variant_name, quantity FROM variants WHERE product_id = $1
 	`
 
 	var productWithVariants models.ProductWithVariants
@@ -158,7 +158,7 @@ func GetProductWithVariant(db *sql.DB, productID int) {
 	var variants []models.Variants
 	for rows.Next() {
 		var variant models.Variants
-		err := rows.Scan(&variant.VariantID, &variant.VariantName)
+		err := rows.Scan(&variant.VariantID, &variant.VariantName, &variant.Qty)
 		if err != nil {
 			panic(err)
 		}
