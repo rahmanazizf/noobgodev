@@ -49,5 +49,10 @@ func main() {
 	// update variant by id
 	cmd.UpdateVariantById(db, variantID, "Ayam Bawang", productID, 7)
 
-	//
+	// get product with variants
+	cmd.GetProductWithVariant(db, productID)
+
+	// delete variant by id
+	cmd.DeleteVariantById(db, variantID)
+
 }
