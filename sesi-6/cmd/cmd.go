@@ -114,25 +114,27 @@ func GetProductById(db *sql.DB, id int) {
 	fmt.Println(product.ProductID, product.Name, product.CreatedAt, product.UpdatedAt)
 }
 
-func UpdateVariantById(db *sql.DB, id int, variantName string, productId int) {
+func UpdateVariantById(db *sql.DB, id int, variantName string, productId int, quantity int) {
 	updateVariant := `
 	UPDATE variants
-	SET variant_name = $1, product_id = $2
-	WHERE id = $3;
+	SET variant_name = $1, product_id = $2, quantity = $3
+	WHERE id = $4;
 	`
-	_, err := db.Query(updateVariant, variantName, productId, id)
+	_, err := db.Query(updateVariant, variantName, productId, quantity, id)
 	CheckError(err)
-	fmt.Println(fmt.Sprintf("Updated variant with id %d: %s; product id: %d", id, variantName, productId))
+	fmt.Println(fmt.Sprintf("Updated variant with id %d: %s", id, variantName))
 }
 
-func CreateVariant(db *sql.DB, variantName string, productId int) {
+func CreateVariant(db *sql.DB, variantName string, productId int, quantity int) int {
 	createVariant := `
-	INSERT INTO variants (variant_name, product_id)
-	VALUES ($1, $2) RETURNING id;
+	INSERT INTO variants (variant_name, product_id, quantity)
+	VALUES ($1, $2, $3) RETURNING id, variant_name;
 	`
-	_, err := db.Query(createVariant, variantName, productId)
+	var variant models.Variants
+	err := db.QueryRow(createVariant, variantName, productId, quantity).Scan(&variant.VariantID, &variant.VariantName)
 	CheckError(err)
-	fmt.Println(fmt.Sprintf("Created variant with"))
+	fmt.Println(fmt.Sprintf("Created variant with id %d: %s", variant.VariantID, variant.VariantName))
+	return variant.VariantID
 }
 
 func GetProductWithVariant(db *sql.DB) {

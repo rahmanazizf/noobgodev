@@ -39,4 +39,15 @@ func main() {
 
 	// update product
 	cmd.UpdateProduct(db, productID, "Indomie Goreng")
+
+	// get product by id
+	cmd.GetProductById(db, productID)
+
+	// create variant
+	variantID := cmd.CreateVariant(db, "Rendang", productID, 1)
+
+	// update variant by id
+	cmd.UpdateVariantById(db, variantID, "Ayam Bawang", productID, 7)
+
+	//
 }
