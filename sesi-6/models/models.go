@@ -1,10 +1,12 @@
 package models
 
+import "time"
+
 type Products struct {
 	ProductID int
 	Name      string
-	CreatedAt interface{}
-	UpdatedAt interface{}
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }
 
 type Variants struct {
@@ -12,8 +14,8 @@ type Variants struct {
 	VariantName string
 	Qty         int
 	ProductID   int
-	CreatedAt   interface{}
-	UpdatedAt   interface{}
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
 }
 
 type ProductWithVariants struct {
