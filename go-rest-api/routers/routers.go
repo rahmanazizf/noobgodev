@@ -1,7 +1,7 @@
 package routers
 
 import (
-	"godev/mid/controllers"
+	"godev/go-rest-api/controllers"
 
 	"github.com/gin-gonic/gin"
 )

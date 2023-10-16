@@ -1,7 +1,7 @@
 package main
 
 import (
-	"godev/mid/routers"
+	"godev/go-rest-api/routers"
 )
 
 func main() {

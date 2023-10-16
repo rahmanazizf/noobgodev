@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	"godev/mid/models"
+	"godev/go-rest-api/models"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
