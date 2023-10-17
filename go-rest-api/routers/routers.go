@@ -8,6 +8,6 @@ import (
 
 func StartServer() *gin.Engine {
 	router := gin.Default()
-	router.GET("/orders", controllers.CreateOrder)
+	router.POST("/orders", controllers.CreateOrder)
 	return router
 }
