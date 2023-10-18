@@ -18,8 +18,12 @@ func CreateOrder(ctx *gin.Context) {
 	if err != nil {
 		ctx.AbortWithError(http.StatusBadRequest, err)
 	}
-
-	newOrder.OrderID = len(OrderData) + 1
+	// generate ID (kalau udah nyambung ke database bakal dihapus)
+	if len(OrderData) == 0 {
+		newOrder.OrderID = 1
+	} else {
+		newOrder.OrderID = OrderData[len(OrderData)-1].OrderID + 1
+	}
 	OrderData = append(OrderData, newOrder)
 
 	ctx.JSON(http.StatusOK, gin.H{
@@ -97,8 +101,17 @@ func RemoveIndex(slc []models.Order, orderID int) []models.Order {
 		}
 		newOrderData = append(newOrderData, o)
 	}
-	if iStop+1 >= len(slc) {
+	if iStop+1 <= len(slc) {
 		return append(newOrderData, slc[iStop+1:]...)
 	}
 	return newOrderData
+}
+
+func DeleteOrder(ctx *gin.Context) {
+	orderID, _ := strconv.Atoi(ctx.Param("orderID"))
+	OrderData = RemoveIndex(OrderData, orderID)
+	ctx.JSON(http.StatusOK, gin.H{
+		"data":    OrderData,
+		"message": fmt.Sprintf("Deleted an order with id %d", orderID),
+	})
 }
