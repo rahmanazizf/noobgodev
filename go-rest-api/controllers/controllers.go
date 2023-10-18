@@ -62,9 +62,8 @@ func GetAllOrders(ctx *gin.Context) {
 	})
 }
 
-var existingOrder *models.Order
-
 func UpdateOrder(ctx *gin.Context) {
+	var existingOrder *models.Order
 	id := ctx.Param("orderID")
 	var updatedOrder *models.Order
 	ctx.ShouldBindJSON(&updatedOrder)
@@ -90,9 +89,8 @@ func UpdateOrder(ctx *gin.Context) {
 
 }
 
-var iStop int
-
 func RemoveIndex(slc []models.Order, orderID int) []models.Order {
+	var iStop int = -1
 	newOrderData := []models.Order{}
 	for i, o := range slc {
 		if o.OrderID == orderID {
