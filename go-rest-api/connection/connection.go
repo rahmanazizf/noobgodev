@@ -13,29 +13,6 @@ import (
 	"gorm.io/gorm"
 )
 
-// TODO: migrasi gorm model ke database?
-// // TODO: driver postgresql dalam gorm
-// func DBConnection() *sql.DB {
-// 	if err := godotenv.Load(); err != nil {
-// 		log.Fatalf("Error loading .env file: %v", err)
-// 	}
-// 	var (
-// 		host     = os.Getenv("HOST")
-// 		port, _  = strconv.Atoi(os.Getenv("PORT"))
-// 		user     = os.Getenv("USER")
-// 		password = os.Getenv("PASSWORD")
-// 		dbname   = os.Getenv("DBNAME")
-// 	)
-// 	psqlConn := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
-// 	db, err := sql.Open("postgres", psqlConn)
-// 	CheckError(err)
-// 	defer db.Close()
-// 	err = db.Ping()
-// 	CheckError(err)
-// 	// log.Println("Connected to the database!")
-// 	return db
-// }
-
 func CheckError(err error) {
 	if err != nil {
 		panic(err)
