@@ -7,9 +7,22 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 var OrderData = []models.Order{}
+
+var connectDB *models.Connection
+
+func NewConnection(conn *gorm.DB) *models.Connection {
+	return &models.Connection{
+		DB: conn,
+	}
+}
+
+func EstablishConnection(conn *models.Connection) {
+	connectDB = conn
+}
 
 func CreateOrder(ctx *gin.Context) {
 	var newOrder models.Order
