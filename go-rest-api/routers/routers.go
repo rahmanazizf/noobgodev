@@ -12,5 +12,6 @@ func StartServer() *gin.Engine {
 	router.GET("/orders", controllers.GetAllOrders)
 	router.GET("/orders/:orderID", controllers.GetOrderByID)
 	router.PUT("/orders/:orderID", controllers.UpdateOrder)
+	router.DELETE("orders/:orderID", controllers.DeleteOrder)
 	return router
 }
