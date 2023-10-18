@@ -39,6 +39,11 @@ func CreateOrder(ctx *gin.Context) {
 	}
 	OrderData = append(OrderData, newOrder)
 
+	// store data to database
+	db := connectDB.DB
+	res := db.Create(&newOrder)
+	fmt.Println(res.RowsAffected)
+
 	ctx.JSON(http.StatusOK, gin.H{
 		"data":    newOrder,
 		"message": "success",
