@@ -2,12 +2,14 @@ package controllers
 
 import (
 	"fmt"
+	"godev/go-rest-api/database"
 	"godev/go-rest-api/models"
 	"net/http"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 var OrderData = []models.Order{}
@@ -127,9 +129,14 @@ func RemoveIndex(slc []models.Order, orderID int) []models.Order {
 
 func DeleteOrder(ctx *gin.Context) {
 	orderID, _ := strconv.Atoi(ctx.Param("orderID"))
-	OrderData = RemoveIndex(OrderData, orderID)
+
+	db := connectDB.DB
+	var orders []models.Order
+	res := db.Clauses(clause.Returning{}).Where("order_id = ?", orderID).Delete(&orders)
+	database.CheckError(res.Error)
+
 	ctx.JSON(http.StatusOK, gin.H{
-		"data":    OrderData,
+		"data":    orders,
 		"message": fmt.Sprintf("Deleted an order with id %d", orderID),
 	})
 }
