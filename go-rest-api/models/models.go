@@ -12,7 +12,7 @@ type Order struct {
 	CreatedAt    time.Time `gorm:"autoCreateTime" json:"-"`
 	UpdatedAt    time.Time `gorm:"autoUpdateTime" json:"-"`
 	OrderedAt    time.Time `json:"orderedAt"`
-	Items        []Item    `json:"items"`
+	Items        []Item    `gorm:"constraint:OnDelete:CASCADE" json:"items"`
 }
 
 type Item struct {
