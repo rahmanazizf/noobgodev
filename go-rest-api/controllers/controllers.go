@@ -34,12 +34,12 @@ func CreateOrder(ctx *gin.Context) {
 		ctx.AbortWithError(http.StatusBadRequest, err)
 	}
 	// generate ID (kalau udah nyambung ke database bakal dihapus)
-	if len(OrderData) == 0 {
-		newOrder.OrderID = 1
-	} else {
-		newOrder.OrderID = OrderData[len(OrderData)-1].OrderID + 1
-	}
-	OrderData = append(OrderData, newOrder)
+	// if len(OrderData) == 0 {
+	// 	newOrder.OrderID = 1
+	// } else {
+	// 	newOrder.OrderID = OrderData[len(OrderData)-1].OrderID + 1
+	// }
+	// OrderData = append(OrderData, newOrder)
 
 	// store data to database
 	db := connectDB.DB
@@ -84,31 +84,56 @@ func GetAllOrders(ctx *gin.Context) {
 	})
 }
 
+// update order dengan fungsi ini dilakukan dengan cara menghapus semua item terkait order yang ditargetkan
 func UpdateOrder(ctx *gin.Context) {
-	var existingOrder *models.Order
-	id := ctx.Param("orderID")
-	var updatedOrder *models.Order
+	var existingOrders models.Order
+	id, _ := strconv.Atoi(ctx.Param("orderID"))
+	var updatedOrder models.Order
 	ctx.ShouldBindJSON(&updatedOrder)
-	for _, o := range OrderData {
-		if id, _ := strconv.Atoi(id); o.OrderID == id {
-			found = true
-			existingOrder = &o
-		}
-	}
-	if !found {
+	// for _, o := range OrderData {
+	// 	if id, _ := strconv.Atoi(id); o.OrderID == id {
+	// 		found = true
+	// 		existingOrder = &o
+	// 	}
+	// }
+	db := connectDB.DB
+	res := db.Preload("Items").Where("order_id = ?", id).First(&existingOrders)
+	if res.Error != nil {
 		ctx.AbortWithStatusJSON(http.StatusNotFound, gin.H{
-			"data":    orderData,
-			"message": fmt.Sprintf("Order ID %s is not available", id),
+			"data":    existingOrders,
+			"message": fmt.Sprintf("Order ID %d is not available", id),
 		})
+		return
 	}
+	// update data
+	// update items
+	var deletedItem []models.Item
+	db.Clauses(clause.Returning{}).Where("order_id = ?", existingOrders.OrderID).Delete(&deletedItem)
 
-	updatedOrder.OrderID = existingOrder.OrderID
-	OrderData = append(RemoveIndex(OrderData, updatedOrder.OrderID), *updatedOrder)
+	existingOrders.CustomerName = updatedOrder.CustomerName
+	existingOrders.OrderedAt = updatedOrder.OrderedAt
+	existingOrders.Items = updatedOrder.Items
+	for i, item := range existingOrders.Items {
+		item.CreatedAt = deletedItem[0].CreatedAt
+
+	}
+	db.Save(&existingOrders)
 	ctx.JSON(http.StatusOK, gin.H{
-		"data":    updatedOrder,
+		"data":    existingOrders,
 		"message": "update success",
 	})
 
+}
+
+func ZipItems(items1 []models.Item, items2 []models.Item) [][]models.Item {
+	if len(items1) != len(items2) {
+		return nil
+	}
+	result := [][]models.Item{}
+	for i, itm1 := range items1 {
+		result = append(result, []models.Item{itm1, items2[i]})
+	}
+	return result
 }
 
 func RemoveIndex(slc []models.Order, orderID int) []models.Order {
