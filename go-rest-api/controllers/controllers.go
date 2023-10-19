@@ -41,8 +41,7 @@ func CreateOrder(ctx *gin.Context) {
 
 	// store data to database
 	db := connectDB.DB
-	res := db.Create(&newOrder)
-	fmt.Println(res.RowsAffected)
+	db.Create(&newOrder)
 
 	ctx.JSON(http.StatusOK, gin.H{
 		"data":    newOrder,
@@ -74,8 +73,11 @@ func GetOrderByID(ctx *gin.Context) {
 }
 
 func GetAllOrders(ctx *gin.Context) {
+	var orders []models.Order
+	db := connectDB.DB
+	db.Preload("Items").Find(&orders)
 	ctx.JSON(http.StatusOK, gin.H{
-		"data":    OrderData,
+		"data":    orders,
 		"message": "success",
 	})
 }
