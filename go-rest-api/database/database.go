@@ -1,4 +1,4 @@
-package connection
+package database
 
 import (
 	"fmt"
@@ -35,7 +35,11 @@ func DBConnection() *gorm.DB {
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	CheckError(err)
 
-	defer db.AutoMigrate(&models.Order{}, &models.Item{})
+	db.Exec("DROP TABLE IF EXISTS items") // items should be deleted first since there is foreign key that dependents to orders
+	db.Exec("DROP TABLE IF EXISTS orders")
+	log.Println("Dropped existing items and orders table")
+
+	db.AutoMigrate(&models.Order{}, &models.Item{})
 
 	return db
 
