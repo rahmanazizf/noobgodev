@@ -2,7 +2,7 @@ package controllers
 
 import (
 	"fmt"
-	"godev/go-rest-api/database"
+	"godev/go-rest-api/helpers"
 	"godev/go-rest-api/models"
 	"net/http"
 	"strconv"
@@ -34,13 +34,6 @@ func CreateOrder(ctx *gin.Context) {
 		ctx.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
-	// generate ID (kalau udah nyambung ke database bakal dihapus)
-	// if len(OrderData) == 0 {
-	// 	newOrder.OrderID = 1
-	// } else {
-	// 	newOrder.OrderID = OrderData[len(OrderData)-1].OrderID + 1
-	// }
-	// OrderData = append(OrderData, newOrder)
 
 	// store data to database
 	db := connectDB.DB
@@ -91,12 +84,6 @@ func UpdateOrder(ctx *gin.Context) {
 	id, _ := strconv.Atoi(ctx.Param("orderID"))
 	var updatedOrder models.Order
 	ctx.ShouldBindJSON(&updatedOrder)
-	// for _, o := range OrderData {
-	// 	if id, _ := strconv.Atoi(id); o.OrderID == id {
-	// 		found = true
-	// 		existingOrder = &o
-	// 	}
-	// }
 	db := connectDB.DB
 	res := db.Preload("Items").Where("order_id = ?", id).First(&existingOrders)
 	if res.Error != nil {
@@ -122,40 +109,13 @@ func UpdateOrder(ctx *gin.Context) {
 
 }
 
-func ZipItems(items1 []models.Item, items2 []models.Item) [][]models.Item {
-	if len(items1) != len(items2) {
-		return nil
-	}
-	result := [][]models.Item{}
-	for i, itm1 := range items1 {
-		result = append(result, []models.Item{itm1, items2[i]})
-	}
-	return result
-}
-
-func RemoveIndex(slc []models.Order, orderID int) []models.Order {
-	var iStop int = -1
-	newOrderData := []models.Order{}
-	for i, o := range slc {
-		if o.OrderID == orderID {
-			iStop = i
-			break
-		}
-		newOrderData = append(newOrderData, o)
-	}
-	if iStop+1 <= len(slc) {
-		return append(newOrderData, slc[iStop+1:]...)
-	}
-	return newOrderData
-}
-
 func DeleteOrder(ctx *gin.Context) {
 	orderID, _ := strconv.Atoi(ctx.Param("orderID"))
 
 	db := connectDB.DB
 	var orders []models.Order
 	res := db.Clauses(clause.Returning{}).Where("order_id = ?", orderID).Delete(&orders)
-	database.CheckError(res.Error)
+	helpers.CheckError(res.Error)
 
 	ctx.JSON(http.StatusOK, gin.H{
 		"data":    orders,

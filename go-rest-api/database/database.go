@@ -2,6 +2,7 @@ package database
 
 import (
 	"fmt"
+	"godev/go-rest-api/helpers"
 	"godev/go-rest-api/models"
 	"log"
 	"os"
@@ -12,12 +13,6 @@ import (
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
-
-func CheckError(err error) {
-	if err != nil {
-		panic(err)
-	}
-}
 
 func DBConnection() *gorm.DB {
 	if err := godotenv.Load(); err != nil {
@@ -33,7 +28,7 @@ func DBConnection() *gorm.DB {
 	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%d sslmode=disable TimeZone=Asia/Shanghai",
 		host, user, password, dbname, port)
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
-	CheckError(err)
+	helpers.CheckError(err)
 
 	db.Exec("DROP TABLE IF EXISTS items") // items should be deleted first since there is foreign key that dependents to orders
 	db.Exec("DROP TABLE IF EXISTS orders")
