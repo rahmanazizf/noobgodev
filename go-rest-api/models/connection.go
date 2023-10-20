@@ -1,6 +1,8 @@
 package models
 
 import (
+	"errors"
+
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
@@ -30,12 +32,15 @@ func (c *Connection) SearchRecByID(Rec *Order, id int) error {
 	if res.Error != nil {
 		return res.Error
 	}
+	if res.RowsAffected == 0 {
+		return res.Error
+	}
 	return nil
 }
 
 func (c *Connection) UpdateRecByID(old *Order, new *Order, id int) error {
 	res := c.DB.Preload("Items").Where("order_id = ?", id).First(&old)
-	if res.Error != nil {
+	if res.RowsAffected == 0 {
 		return res.Error
 	}
 	// update data
@@ -57,8 +62,11 @@ func (c *Connection) UpdateRecByID(old *Order, new *Order, id int) error {
 
 }
 
-func (c *Connection) DeleteRecByID(Recs []Order, id int) error {
+func (c *Connection) DeleteRecByID(Recs *[]Order, id int) error {
 	res := c.DB.Clauses(clause.Returning{}).Where("order_id = ?", id).Delete(&Recs)
+	if res.RowsAffected == 0 {
+		return errors.New("Order ID not found!")
+	}
 	if res.Error != nil {
 		return res.Error
 	}
