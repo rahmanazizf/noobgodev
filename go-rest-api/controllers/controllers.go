@@ -29,14 +29,18 @@ func CreateOrder(ctx *gin.Context) {
 
 	err := ctx.ShouldBindJSON(&newOrder)
 	if err != nil {
-		ctx.AbortWithError(http.StatusBadRequest, err)
+		ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+			"message": "Binding JSON to model failed",
+		})
 		return
 	}
 
 	// store data to database
 	err = connectDB.CreateRec(&newOrder)
 	if err != nil {
-		ctx.AbortWithError(http.StatusInternalServerError, err)
+		ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+			"message": err,
+		})
 		return
 	}
 
@@ -73,7 +77,9 @@ func GetAllOrders(ctx *gin.Context) {
 	var orders []models.Order
 	err := connectDB.GetAllRec(orders)
 	if err != nil {
-		ctx.AbortWithError(http.StatusInternalServerError, err)
+		ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+			"message": err,
+		})
 		return
 	}
 	ctx.JSON(http.StatusOK, gin.H{
@@ -90,7 +96,9 @@ func UpdateOrder(ctx *gin.Context) {
 	ctx.ShouldBindJSON(&updatedOrder)
 	err := connectDB.UpdateRecByID(&existingOrders, &updatedOrder, id)
 	if err != nil {
-		ctx.AbortWithError(http.StatusInternalServerError, err)
+		ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+			"message": "Order ID not found!",
+		})
 		return
 	}
 	ctx.JSON(http.StatusOK, gin.H{
@@ -104,9 +112,11 @@ func DeleteOrder(ctx *gin.Context) {
 	orderID, _ := strconv.Atoi(ctx.Param("orderID"))
 
 	var orders []models.Order
-	err := connectDB.DeleteRecByID(orders, orderID)
+	err := connectDB.DeleteRecByID(&orders, orderID)
 	if err != nil {
-		ctx.AbortWithError(http.StatusInternalServerError, err)
+		ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+			"message": "Order ID not found!",
+		})
 		return
 	}
 
