@@ -2,14 +2,12 @@ package controllers
 
 import (
 	"fmt"
-	"godev/go-rest-api/helpers"
 	"godev/go-rest-api/models"
 	"net/http"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
-	"gorm.io/gorm/clause"
 )
 
 var OrderData = []models.Order{}
@@ -36,8 +34,11 @@ func CreateOrder(ctx *gin.Context) {
 	}
 
 	// store data to database
-	db := connectDB.DB
-	db.Create(&newOrder)
+	err = connectDB.CreateRec(&newOrder)
+	if err != nil {
+		ctx.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
 
 	ctx.JSON(http.StatusOK, gin.H{
 		"data":    newOrder,
@@ -70,8 +71,11 @@ func GetOrderByID(ctx *gin.Context) {
 
 func GetAllOrders(ctx *gin.Context) {
 	var orders []models.Order
-	db := connectDB.DB
-	db.Preload("Items").Find(&orders)
+	err := connectDB.GetAllRec(orders)
+	if err != nil {
+		ctx.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
 	ctx.JSON(http.StatusOK, gin.H{
 		"data":    orders,
 		"message": "success",
@@ -84,24 +88,11 @@ func UpdateOrder(ctx *gin.Context) {
 	id, _ := strconv.Atoi(ctx.Param("orderID"))
 	var updatedOrder models.Order
 	ctx.ShouldBindJSON(&updatedOrder)
-	db := connectDB.DB
-	res := db.Preload("Items").Where("order_id = ?", id).First(&existingOrders)
-	if res.Error != nil {
-		ctx.AbortWithStatusJSON(http.StatusNotFound, gin.H{
-			"data":    existingOrders,
-			"message": fmt.Sprintf("Order ID %d is not available", id),
-		})
+	err := connectDB.UpdateRecByID(&existingOrders, &updatedOrder, id)
+	if err != nil {
+		ctx.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
-	// update data
-	// delete existing items with related order_id
-	var deletedItem []models.Item
-	db.Clauses(clause.Returning{}).Where("order_id = ?", existingOrders.OrderID).Delete(&deletedItem)
-
-	existingOrders.CustomerName = updatedOrder.CustomerName
-	existingOrders.OrderedAt = updatedOrder.OrderedAt
-	existingOrders.Items = updatedOrder.Items
-	db.Save(&existingOrders)
 	ctx.JSON(http.StatusOK, gin.H{
 		"data":    existingOrders,
 		"message": "update success",
@@ -112,10 +103,12 @@ func UpdateOrder(ctx *gin.Context) {
 func DeleteOrder(ctx *gin.Context) {
 	orderID, _ := strconv.Atoi(ctx.Param("orderID"))
 
-	db := connectDB.DB
 	var orders []models.Order
-	res := db.Clauses(clause.Returning{}).Where("order_id = ?", orderID).Delete(&orders)
-	helpers.CheckError(res.Error)
+	err := connectDB.DeleteRecByID(orders, orderID)
+	if err != nil {
+		ctx.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
 
 	ctx.JSON(http.StatusOK, gin.H{
 		"data":    orders,
