@@ -32,6 +32,7 @@ func CreateOrder(ctx *gin.Context) {
 	err := ctx.ShouldBindJSON(&newOrder)
 	if err != nil {
 		ctx.AbortWithError(http.StatusBadRequest, err)
+		return
 	}
 	// generate ID (kalau udah nyambung ke database bakal dihapus)
 	// if len(OrderData) == 0 {
@@ -106,17 +107,13 @@ func UpdateOrder(ctx *gin.Context) {
 		return
 	}
 	// update data
-	// update items
+	// delete existing items with related order_id
 	var deletedItem []models.Item
 	db.Clauses(clause.Returning{}).Where("order_id = ?", existingOrders.OrderID).Delete(&deletedItem)
 
 	existingOrders.CustomerName = updatedOrder.CustomerName
 	existingOrders.OrderedAt = updatedOrder.OrderedAt
 	existingOrders.Items = updatedOrder.Items
-	for i, item := range existingOrders.Items {
-		item.CreatedAt = deletedItem[0].CreatedAt
-
-	}
 	db.Save(&existingOrders)
 	ctx.JSON(http.StatusOK, gin.H{
 		"data":    existingOrders,
