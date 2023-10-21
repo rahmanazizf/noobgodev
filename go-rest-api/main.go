@@ -10,5 +10,5 @@ func main() {
 	conn := database.DBConnection()
 	db := controllers.NewConnection(conn)
 	controllers.EstablishConnection(db)
-	routers.StartServer().Run(":8382")
+	routers.StartServer().Run(":8080")
 }
