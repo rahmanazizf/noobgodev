@@ -19,7 +19,7 @@ func (c *Connection) CreateRec(newRec *Order) error {
 	return nil
 }
 
-func (c *Connection) GetAllRec(Recs []Order) error {
+func (c *Connection) GetAllRec(Recs *[]Order) error {
 	res := c.DB.Preload("Items").Find(&Recs)
 	if res.Error != nil {
 		return res.Error
