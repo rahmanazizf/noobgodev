@@ -29,7 +29,7 @@ func CreateOrder(ctx *gin.Context) {
 
 	err := ctx.ShouldBindJSON(&newOrder)
 	if err != nil {
-		ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 			"message": "Binding JSON to model failed",
 		})
 		return
@@ -54,28 +54,25 @@ var found = false
 var orderData *models.Order
 
 func GetOrderByID(ctx *gin.Context) {
-	id := ctx.Param("orderID")
-	for _, o := range OrderData {
-		if id, _ := strconv.Atoi(id); o.OrderID == id {
-			found = true
-			orderData = &o
-		}
-	}
-	if !found {
+	id, _ := strconv.Atoi(ctx.Param("orderID"))
+
+	var order models.Order
+	err := connectDB.SearchRecByID(&order, id)
+	if err != nil {
 		ctx.AbortWithStatusJSON(http.StatusNotFound, gin.H{
-			"data":    orderData,
-			"message": fmt.Sprintf("Order ID %s is not available", id),
+			"message": fmt.Sprintf("Order with ID %d was not found", id),
 		})
+		return
 	}
 	ctx.JSON(http.StatusOK, gin.H{
-		"data":    orderData,
+		"data":    order,
 		"message": "sucess",
 	})
 }
 
 func GetAllOrders(ctx *gin.Context) {
 	var orders []models.Order
-	err := connectDB.GetAllRec(orders)
+	err := connectDB.GetAllRec(&orders)
 	if err != nil {
 		ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
 			"message": err,
